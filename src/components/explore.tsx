@@ -1,8 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
-import { APIProvider, Map, Marker, InfoWindow, AdvancedMarker, useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
+import {
+  APIProvider,
+  Map,
+  Marker,
+  InfoWindow,
+  AdvancedMarker,
+  useAdvancedMarkerRef,
+} from '@vis.gl/react-google-maps';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -10,35 +17,35 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { GeoJsonLayer } from "@deck.gl/layers/typed";
-import { DeckGlOverlay } from "./deckgl-overlay";
+} from '@/components/ui/card';
+import { GeoJsonLayer } from '@deck.gl/layers/typed';
+import { DeckGlOverlay } from './deckgl-overlay';
 
 // Data source from the deck.gl documentation
 const DATA_URL =
-  "https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/bart.geo.json";
+  'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/bart.geo.json';
 
-import { cn } from "@/lib/utils";
-import type { Feature, GeoJSON } from "geojson";
-import { useNavigate } from "react-router-dom";
-import { Input } from "./ui/input";
-import { ScrollArea } from "./ui/scroll-area";
-import { Separator } from "./ui/separator";
+import { cn } from '@/lib/utils';
+import type { Feature, GeoJSON } from 'geojson';
+import { useNavigate } from 'react-router-dom';
+import { Input } from './ui/input';
+import { ScrollArea } from './ui/scroll-area';
+import { Separator } from './ui/separator';
 
-const API_KEY = globalThis.process.env.GOOGLE_MAPS_API_KEY ?? "";
+const API_KEY = globalThis.process.env.GOOGLE_MAPS_API_KEY ?? '';
 
 // Example from the deck.gl documentation
 function getDeckGlLayers(data: GeoJSON | null) {
   if (!data) return [];
-  
+
   return [
     new GeoJsonLayer({
-      id: "geojson-layer",
+      id: 'geojson-layer',
       data,
       stroked: false,
       filled: true,
       extruded: true,
-      pointType: "circle",
+      pointType: 'circle',
       lineWidthScale: 20,
       lineWidthMinPixels: 4,
       getFillColor: [160, 160, 180, 200],
@@ -67,78 +74,88 @@ interface StudyRoom {
   location: string;
   latitude: number;
   longitude: number;
+  openingTime: string;
+  closingTime: string;
 }
 
-const studyRooms: StudyRoom[]= [
+const studyRooms: StudyRoom[] = [
   {
     id: 1,
-    name: "KEC 1001 Study Room",
+    name: 'KEC 1001 Study Room',
     image:
-      "https://egis.umn.edu/studyspace_v2/studyspaceimages/10ChurchStreet-101.jpg",
-    noiseLevel: "Quiet",
+      'https://egis.umn.edu/studyspace_v2/studyspaceimages/10ChurchStreet-101.jpg',
+    noiseLevel: 'Quiet',
     seats: 4,
-    technology: ["Whiteboard", "Projector"],
-    seating: "Table",
-    location: "Kelley Engineering Center",
+    technology: ['Whiteboard', 'Projector'],
+    seating: 'Table',
+    location: 'Kelley Engineering Center',
     latitude: 44.56706903872953,
-    longitude: -123.27873483900234
+    longitude: -123.27873483900234,
+    openingTime: '9:00 AM',
+    closingTime: '9:00 PM',
     // ... we'll need to add more fields as needed (backend will provide this data)
   },
   {
     id: 2,
-    name: "417 Study Room",
+    name: '417 Study Room',
     image:
-      "https://egis.umn.edu/studyspace_v2/studyspaceimages/STUDYSPACE_210_Alderman_417.jpg",
-    noiseLevel: "Low Hum",
+      'https://egis.umn.edu/studyspace_v2/studyspaceimages/STUDYSPACE_210_Alderman_417.jpg',
+    noiseLevel: 'Low Hum',
     seats: 17,
-    technology: ["Whiteboard", "Projector"],
-    seating: "Table",
-    location: "Callahan Hall",
-    latitude: 44.56405361514414, 
-    longitude: -123.27332126635314
+    technology: ['Whiteboard', 'Projector'],
+    seating: 'Table',
+    location: 'Callahan Hall',
+    latitude: 44.56405361514414,
+    longitude: -123.27332126635314,
+    openingTime: '9:00 AM',
+    closingTime: '9:00 PM',
   },
   {
     id: 3,
-    name: "KEC 1003 Study Room",
+    name: 'KEC 1003 Study Room',
     image:
-      "https://egis.umn.edu/studyspace_v2/studyspaceimages/10ChurchStreet-101.jpg",
-    noiseLevel: "Quiet",
+      'https://egis.umn.edu/studyspace_v2/studyspaceimages/10ChurchStreet-101.jpg',
+    noiseLevel: 'Quiet',
     seats: 4,
-    technology: ["Whiteboard", "Projector"],
-    seating: "Table",
-    location: "Kelley Engineering Center",
-    latitude: 44.567019861369495, 
-    longitude: -123.27914909750905
+    technology: ['Whiteboard', 'Projector'],
+    seating: 'Table',
+    location: 'Kelley Engineering Center',
+    latitude: 44.567019861369495,
+    longitude: -123.27914909750905,
+    openingTime: '9:00 AM',
+    closingTime: '9:00 PM',
   },
   {
     id: 4,
-    name: "KEC 1005 Study Room",
+    name: 'KEC 1005 Study Room',
     image:
-      "https://egis.umn.edu/studyspace_v2/studyspaceimages/10ChurchStreet-101.jpg",
-    noiseLevel: "Quiet",
+      'https://egis.umn.edu/studyspace_v2/studyspaceimages/10ChurchStreet-101.jpg',
+    noiseLevel: 'Quiet',
     seats: 4,
-    technology: ["Whiteboard", "Projector"],
-    seating: "Table",
-    location: "Kelley Engineering Center",
-    latitude: 44.567129397791945, 
-    longitude: -123.27918257533415
+    technology: ['Whiteboard', 'Projector'],
+    seating: 'Table',
+    location: 'Kelley Engineering Center',
+    latitude: 44.567129397791945,
+    longitude: -123.27918257533415,
+    openingTime: '9:00 AM',
+    closingTime: '9:00 PM',
   },
   {
     id: 5,
-    name: "KEC 1001 Study Room",
+    name: 'KEC 1001 Study Room',
     image:
-      "https://egis.umn.edu/studyspace_v2/studyspaceimages/10ChurchStreet-101.jpg",
-    noiseLevel: "Quiet",
+      'https://egis.umn.edu/studyspace_v2/studyspaceimages/10ChurchStreet-101.jpg',
+    noiseLevel: 'Quiet',
     seats: 4,
-    technology: ["Whiteboard", "Projector"],
-    seating: "Table",
-    location: "Kelley Engineering Center",
-    latitude: 44.56701370415376, 
-    longitude: - 123.2790032662755
+    technology: ['Whiteboard', 'Projector'],
+    seating: 'Table',
+    location: 'Kelley Engineering Center',
+    latitude: 44.56701370415376,
+    longitude: -123.2790032662755,
+    openingTime: '9:00 AM',
+    closingTime: '9:00 PM',
   },
 ];
-
-
 
 type CardProps = React.ComponentProps<typeof Card>;
 
@@ -147,15 +164,13 @@ export function ExplorePage({ className, ...props }: CardProps) {
   const [testData, setTestData] = useState<StudyRoom[]>(studyRooms);
   const navigate = useNavigate();
 
-  const contentString = "<div>KEC 1001 Study Room</div>";
-  
+  const contentString = '<div>KEC 1001 Study Room</div>';
 
   useEffect(() => {
     fetch(DATA_URL)
       .then((res) => res.json())
       .then((data) => setData(data as GeoJSON));
   }, []);
-
 
   const [room, setRoom] = useState<StudyRoom | null>(null);
 
@@ -173,8 +188,8 @@ export function ExplorePage({ className, ...props }: CardProps) {
         className="w-full h-full"
         defaultCenter={{ lat: 44.5618, lng: -123.2823 }}
         defaultZoom={15}
-        mapId={"4f6dde3310be51d7"}
-        gestureHandling={"greedy"}
+        mapId={'4f6dde3310be51d7'}
+        gestureHandling={'greedy'}
         disableDefaultUI={true}
       >
         {testData.map((room) => {
@@ -184,16 +199,16 @@ export function ExplorePage({ className, ...props }: CardProps) {
               position={{ lat: room.latitude, lng: room.longitude }}
               onClick={() => handleMarkerClick(room)}
             />
-          )
+          );
         })}
         {room && (
-        <InfoWindow
-          position={{ lat: room.latitude, lng: room.longitude }}
+          <InfoWindow
+            position={{ lat: room.latitude, lng: room.longitude }}
             onCloseClick={handleCloseClick}
-        >
-          <div className=" text-black">{room.name}</div>
-        </InfoWindow>
-      )}
+          >
+            <div className=" text-black">{room.name}</div>
+          </InfoWindow>
+        )}
         <div className="absolute top-4 left-4 p-2 w-1/4 rounded-lg shadow-lg ring-2 ring-white">
           <div className="grid grid-cols-2 gap-4">
             <h1 className="col-span-2 text-lg font-semibold text-white">
@@ -217,7 +232,7 @@ export function ExplorePage({ className, ...props }: CardProps) {
             </div>
             <ScrollArea className="col-span-2 h-96">
               {testData.map((room) => (
-                <Card className={cn("w-full", className)} {...props}>
+                <Card className={cn('w-full', className)} {...props}>
                   <CardHeader>
                     <CardTitle>{room.name}</CardTitle>
                   </CardHeader>
@@ -228,10 +243,14 @@ export function ExplorePage({ className, ...props }: CardProps) {
                       className="object-cover min-w-full h-full rounded-sm"
                     />
                     <CardDescription
-                      className={cn("grid grid-cols-2 gap-2 mt-2 w-full")}
+                      className={cn('grid grid-cols-2 gap-2 mt-2 w-full')}
                     >
                       <p className="w-full whitespace-nowrap text-center">
                         Located at {room.location}
+                      </p>
+                      <br />
+                      <p className="w-full whitespace-nowrap text-center">
+                        {room.openingTime} - {room.closingTime}
                       </p>
                       <br />
                       <p className="col-span-1">• {room.seats} seats</p>
@@ -250,7 +269,7 @@ export function ExplorePage({ className, ...props }: CardProps) {
                     </CardDescription>
                   </CardContent>
                   <Separator />
-                  <CardFooter className={cn("mt-2")}>
+                  <CardFooter className={cn('mt-2')}>
                     <Button
                       variant="link"
                       onClick={() => navigate(`/study-room/${room.id}`)}
